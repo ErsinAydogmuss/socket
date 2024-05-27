@@ -30,6 +30,7 @@ io.on("connection", (socket) => {
 
   //send notification
   socket.on("sendNotification", async (data) => {
+    console.log("sendNotification", data);
     const {
       senderId,
       receiverId,
@@ -41,15 +42,20 @@ io.on("connection", (socket) => {
       senderName,
     } = data;
 
+    let queryArray = [
+      Query.equal("senderId", senderId),
+      Query.equal("receiverId", receiverId),
+      Query.equal("type", type),
+    ];
+
+    if (postId) {
+      queryArray.push(Query.equal("postId", postId));
+    }
+
     const notification = await database.listDocuments(
       "66397753002754b32828",
       "663bd80a00250402979e",
-      [
-        Query.equal("senderId", senderId),
-        Query.equal("receiverId", receiverId),
-        Query.equal("postId", postId),
-        Query.equal("type", type),
-      ]
+      queryArray
     );
     const receiverSocketId = users.get(receiverId);
     if (receiverSocketId) {
@@ -58,7 +64,7 @@ io.on("connection", (socket) => {
         senderId,
         receiverId,
         type,
-        postId,
+        postId: postId ? postId : null,
         unSeen,
         active,
         senderImageUrl,
@@ -82,7 +88,7 @@ io.on("connection", (socket) => {
             senderId,
             receiverId,
             type,
-            postId,
+            postId: postId ? postId : null,
             unSeen,
             active,
             senderImageUrl,
@@ -100,7 +106,7 @@ io.on("connection", (socket) => {
           senderId,
           receiverId,
           type,
-          postId,
+          postId: postId ? postId : null,
           unSeen,
           active,
           senderImageUrl,
