@@ -127,15 +127,20 @@ io.on("connection", (socket) => {
       senderName,
     } = data;
     const receiverSocketId = users.get(receiverId);
+    let queryArray = [
+      Query.equal("senderId", senderId),
+      Query.equal("receiverId", receiverId),
+      Query.equal("type", type),
+    ];
+
+    if (postId) {
+      queryArray.push(Query.equal("postId", postId));
+    }
+
     const notification = await database.listDocuments(
       "66397753002754b32828",
       "663bd80a00250402979e",
-      [
-        Query.equal("senderId", senderId),
-        Query.equal("receiverId", receiverId),
-        Query.equal("postId", postId),
-        Query.equal("type", type),
-      ]
+      queryArray
     );
     console.log("removeNotification", notification);
     if (receiverSocketId) {
