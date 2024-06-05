@@ -150,6 +150,7 @@ io.on("connection", (socket) => {
         senderId,
         receiverId,
         type,
+        unSeen: false,
         postId,
         commentId,
         active,
@@ -161,6 +162,7 @@ io.on("connection", (socket) => {
           notification.documents[0].$id,
           {
             active: false,
+            unSeen: false,
           }
         );
       }
@@ -173,6 +175,7 @@ io.on("connection", (socket) => {
           notification.documents[0].$id,
           {
             active: false,
+            unSeen: false,
           }
         );
       }
@@ -188,9 +191,9 @@ io.on("connection", (socket) => {
       active,
       conversationId,
       control,
+      senderName,
+      profileImageUrl,
     } = message;
-
-    console.log("asd", conversationId, control);
 
     if (control === false) {
       const getConversation = await database.listDocuments(
@@ -199,13 +202,14 @@ io.on("connection", (socket) => {
         [Query.equal("participants", conversationId)]
       );
 
-      const updateConversation = await database.updateDocument(
+      await database.updateDocument(
         "66397753002754b32828",
         "6658b0d90035989e7b16",
         getConversation.documents[0].$id,
         {
           lastMessage: text,
           lastMessageId: senderId,
+          unSeen: false,
         }
       );
     }
@@ -220,14 +224,18 @@ io.on("connection", (socket) => {
         text,
         unSeen,
         active,
+        profileImageUrl,
+        senderName,
       });
       socket.emit("receiveMessage", {
         senderId,
         conversationId,
         receiverId,
         text,
-        unSeen: true,
+        unSeen: false,
         active,
+        profileImageUrl,
+        senderName,
       });
       await database.createDocument(
         "66397753002754b32828",
@@ -238,7 +246,7 @@ io.on("connection", (socket) => {
           conversationId,
           receiverId,
           text,
-          unSeen: true,
+          unSeen: false,
           active,
         }
       );
@@ -249,6 +257,8 @@ io.on("connection", (socket) => {
         receiverId,
         text,
         unSeen: false,
+        profileImageUrl,
+        senderName,
         active,
       });
       await database.createDocument(
